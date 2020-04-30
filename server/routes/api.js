@@ -87,7 +87,7 @@ router.post('/login', (req, res) => {
                             // create JWT using `sign()` method passing in payload
                             jwt.sign(payload, secretKey, { expiresIn: 120 }, (error, token) => {
                                 // if errors send errors, otherwise send token as object
-                                error ? res.status(403).json({error : error}) : res.json({ token: `Bearer ${token}` });
+                                error ? res.status(403).json({error : error}) : res.json({ token: `Bearer ${token}`});
                             });
                         }
                         // if passwords don't match send 403 message
@@ -99,20 +99,20 @@ router.post('/login', (req, res) => {
         });
 });
 
-// get ratings by user email
-router.get('/user/ratings', authenticateToken ,(req,res) => {
-    RatingCollection.find(
-        {author : req.user.email}, (error, result) => {
-            error ? res.send(error) : res.json({result : result, user : req.user})
-        }
-    );
-});
-
 // get all ratings
 router.get('/ratings' ,(req,res) => {
     RatingCollection.find(
         {}, (error, result) => {
             error ? res.send(error) : res.send(result)
+        }
+    );
+});
+
+// get ratings by user email
+router.get('/user/ratings', authenticateToken ,(req,res) => {
+    RatingCollection.find(
+        {author : req.user.email}, (error, result) => {
+            error ? res.send(error) : res.json({result : result, user : req.user})
         }
     );
 });
@@ -123,28 +123,6 @@ router.post('/rating', authenticateToken ,(req,res) => {
         error ? res.send(error) : res.json({result : results, user : req.user})
     });
 });
-
-// // verify and decrypt token
-// router.post('/verify', verifyToken, (req, res) => {
-//     // res.send("Verify");
-//     jwt.verify(req.token, secretKey, (errors, results) => {
-//         errors ? res.status(500).json({error : errors }) : res.json({message : results});
-//     })
-// });
-// // pull out token middleware
-// function verifyToken(req,res,next){
-//     // console.log("verify token");
-//     let bearerHeader = req.headers["authorization"];
-//     if(bearerHeader){
-//         let bearer = bearerHeader.split(' ');
-//         let bearerToken = bearer[1];
-//         req.token = bearerToken;
-//         // console.log(req.token);
-//         next();
-//     } else {
-//         res.status(403).json({error : "Forbidden"});
-//     }
-// }
 
 // authorize route middle ware
 function authenticateToken(req, res, next) {
@@ -162,6 +140,25 @@ function authenticateToken(req, res, next) {
                 next();
             }
         });
+    } else {
+        res.status(403).json({error : "Forbidden"});
+    }
+}
+
+// verify and decrypt token
+router.post('/token', verifyToken, (req, res) => {
+    jwt.verify(req.token, secretKey, (errors, results) => {
+        errors ? res.status(500).json({error : errors }) : res.json({message : results});
+    });
+});
+// pull out token middleware
+function verifyToken(req,res,next){
+    let bearerHeader = req.headers["authorization"];
+    if(bearerHeader){
+        let bearer = bearerHeader.split(' ');
+        let bearerToken = bearer[1];
+        req.token = bearerToken;
+        next();
     } else {
         res.status(403).json({error : "Forbidden"});
     }
