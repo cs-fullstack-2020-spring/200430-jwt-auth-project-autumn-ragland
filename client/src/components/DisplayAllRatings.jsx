@@ -41,7 +41,7 @@ class DisplayAllRatings extends Component {
                         this.state.ratingArray.map((rating) => {
                             return (
                                 <div className="col mb-4" key={rating._id} >
-                                    <div className="card" style={{ width: "18rem", margin: "1%" }}>
+                                    <div className="card">
                                         <div className="card-header">
                                             {rating.title}
                                         </div>

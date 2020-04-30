@@ -1,12 +1,12 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 
 // class based component to display movie ratings by user
 class DisplayRatingByUser extends Component {
-    constructor(props){
+    constructor(props) {
         super(props);
         // array to hold ratings from database
         this.state = {
-            ratingArray : [],
+            ratingArray: [],
         }
     }
 
@@ -16,24 +16,28 @@ class DisplayRatingByUser extends Component {
     }
 
     // fetch all movie ratings from database
-    loadData = async() => {
+    loadData = async () => {
         let response = await fetch('/api/user/ratings', {
-            method : "GET",
-            headers : {
-                "authorization" : this.props.token
+            method: "GET",
+            headers: {
+                "authorization": this.props.token
             }
         });
         let json = await response.json();
         // if the response has a result property
-        if(json.result){
+        if (json.result) {
             // set the ratingArray property of state to the returned movies from database
-            this.setState({ratingArray : json.result});
+            this.setState({ ratingArray: json.result });
         }
     }
     // display rating author, title, number and review using bootstrap list groups
     // if user accessed page but is not logged in, prompt to login
     render() {
-        if(this.props.token){
+        if (this.state.ratingArray <= 0 && this.props.token) {
+            return (
+                <h1>Add Movie Ratings!</h1>
+            )
+        } else if (this.props.token) {
             return (
                 <div>
                     <h1>Your Movie Ratings</h1>
@@ -42,7 +46,7 @@ class DisplayRatingByUser extends Component {
                             this.state.ratingArray.map((rating) => {
                                 return (
                                     <div className="col mb-4" key={rating._id} >
-                                        <div className="card" style={{ width: "18rem", margin: "1%" }}>
+                                        <div className="card">
                                             <div className="card-header">
                                                 {rating.title}
                                             </div>
@@ -59,11 +63,11 @@ class DisplayRatingByUser extends Component {
                         }
                     </div>
                 </div>
-            )}
-            return(
-                <h1>Please Login To Access Your Ratings</h1>
             )
+        }
+        return (
+            <h1>Please Login to View Your Ratings</h1>
+        )
     }
 }
-
 export default DisplayRatingByUser;

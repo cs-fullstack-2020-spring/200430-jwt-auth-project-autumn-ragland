@@ -75,24 +75,24 @@ class CreateRating extends Component {
                 <Fragment>
                     <h1>Add Review</h1>
                     <form>
+                        <div className="form-group">
+                            <label htmlFor="title">Title</label>
+                            <input className="form-control" type="text" name="title" id="title" value={this.state.title} onChange={this.handleChange} />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="yearReleased">Year Released</label>
+                            <input className="form-control" type="number" name="yearReleased" id="yearReleased" value={this.state.yearReleased} onChange={this.handleChange}/>
+                        </div>
+                        <div class="form-group">
+                            <label htmlFor="rating">Rating</label>
+                            <input className="form-control" type="number" name="rating" id="rating" value={this.state.rating} onChange={this.handleChange}/>
+                        </div>
 
-                        <label htmlFor="title">Title</label>
-                        <input type="text" name="title" id="title" value={this.state.title} onChange={this.handleChange} />
-                        <br />
-
-                        <label htmlFor="yearReleased">Year Released</label>
-                        <input type="number" name="yearReleased" id="yearReleased" value={this.state.yearReleased} onChange={this.handleChange} />
-                        <br />
-
-                        <label htmlFor="rating">Rating</label>
-                        <input type="number" name="rating" id="rating" value={this.state.rating} onChange={this.handleChange} />
-                        <br />
-
-                        <label htmlFor="review">Review</label>
-                        <input type="text" name="review" id="review" value={this.state.review} onChange={this.handleChange} />
-                        <br />
-
-                        <button onClick={this.handleSubmission}>Review</button>
+                        <div class="form-group">
+                            <label htmlFor="review">Rating</label>
+                            <textarea rows="4" cols="50" className="form-control" name="review" id="review" value={this.state.review} onChange={this.handleChange} />
+                        </div>
+                        <button onClick={this.handleSubmission} className="btn btn-primary">Submit</button>
                     </form>
                 </Fragment>
             )

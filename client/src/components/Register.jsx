@@ -68,20 +68,19 @@ class Register extends Component {
             <Fragment>
                 <h1>Register</h1>
                 <form>
-
-                    <label htmlFor="name">Name</label>
-                    <input type="text" name="name" id="name" value={this.state.name} onChange={this.handleChange} />
-                    <br />
-
-                    <label htmlFor="email">Email</label>
-                    <input type="text" name="email" id="email" value={this.state.email} onChange={this.handleChange} />
-                    <br />
-
-                    <label htmlFor="password">Password</label>
-                    <input type="password" name="password" id="password" value={this.state.password} onChange={this.handleChange} />
-                    <br />
-
-                    <button onClick={this.handleSubmission}>Login</button>
+                <div className="form-group">
+                        <label htmlFor="name">Name</label>
+                        <input type="text" className="form-control" name="name" id="name" value={this.state.name} onChange={this.handleChange} />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="email">Email address</label>
+                        <input type="text" className="form-control" name="email" id="email" value={this.state.email} onChange={this.handleChange} />
+                    </div>
+                    <div class="form-group">
+                        <label htmlFor="password">Password</label>
+                        <input type="password" className="form-control" name="password" id="password" value={this.state.password} onChange={this.handleChange} />
+                    </div>
+                    <button onClick={this.handleSubmission}  className="btn btn-primary">Submit</button>
                 </form>
             </Fragment>
         )
