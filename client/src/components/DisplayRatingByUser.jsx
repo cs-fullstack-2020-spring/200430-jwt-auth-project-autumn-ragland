@@ -31,6 +31,7 @@ class DisplayRatingByUser extends Component {
         }
     }
     // display rating author, title, number and review using bootstrap list groups
+    // if user is logged in but doesn't have any ratings display a message
     // if user accessed page but is not logged in, prompt to login
     render() {
         if (this.state.ratingArray <= 0 && this.props.token) {
