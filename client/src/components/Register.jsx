@@ -1,5 +1,7 @@
 import React, {Component, Fragment} from 'react';
+import { Redirect } from "react-router-dom";
 
+// class based component to validate and create a new user
 class Register extends Component {
     constructor(props){
         super(props);
@@ -11,7 +13,7 @@ class Register extends Component {
         }
     }
 
-    // controlled component form
+    // controlled component form to update state based on user input
     handleChange = (event) => {
         if (event.target.name === "email") {
             this.setState({ email: event.target.value });
@@ -22,10 +24,9 @@ class Register extends Component {
         }
     }
 
-    // when form is submitted read user from database
+    // when form is submitted validate and create user
     handleSubmission = async (event) => {
         event.preventDefault(); // keep page from reloading
-        // console.log(this.state);
 
         // define object to send to post request
         let newUser = {
@@ -44,16 +45,25 @@ class Register extends Component {
         });
         // pull out json from response
         let json = await response.json();
-        // log json response from server
+        // if the response has an error property
         if(json.error){
+            // alert the error in the window
             window.alert(json.error)
-        } else {
-            window.alert(`New User ${json.name} created`);
+        } 
+        // if the response does not have an error property
+        else {
+            // alert the user that they were successfully created
+            // window.alert(`${this.props.user.name} account created`);
+            // redirect user to login page
+            this.setState({ redirect: true });
         }
     }
 
-    // render form
+    // render form, unless submitted
     render() {
+        if (this.state.redirect) {
+            return <Redirect to={"/login"} />
+        }
         return (
             <Fragment>
                 <h1>Register</h1>

@@ -1,19 +1,21 @@
 import React, {Component} from 'react';
 
+// class based component to display movie ratings by user
 class DisplayRatingByUser extends Component {
     constructor(props){
         super(props);
+        // array to hold ratings from database
         this.state = {
             ratingArray : [],
         }
     }
 
-    // load mock data into array
+    // call method to fetch data from database on load
     componentDidMount = () => {
         this.loadData();
     }
 
-    // get all documents from api endpoint
+    // fetch all movie ratings from database
     loadData = async() => {
         let response = await fetch('/api/user/ratings', {
             method : "GET",
@@ -22,40 +24,45 @@ class DisplayRatingByUser extends Component {
             }
         });
         let json = await response.json();
-        if(json.error){
-            window.alert(json.error)
-        } else {
-            // console.log(json);
+        // if the response has a result property
+        if(json.result){
+            // set the ratingArray property of state to the returned movies from database
             this.setState({ratingArray : json.result});
         }
     }
-
+    // display rating author, title, number and review using bootstrap list groups
+    // if user accessed page but is not logged in, prompt to login
     render() {
-        return (
-            <div>
-                <h1>Ratings</h1>
+        if(this.props.token){
+            return (
                 <div>
-                    {
-                        this.state.ratingArray.map((rating) => {
-                            return(
-                                <div key = {rating._id}>
-                                    {rating.author}
-                                     <br/>
-                                    {rating.title} 
-                                    <br/>
-                                    {rating.rating} 
-                                    <br/>
-                                    {rating.review} 
-                                    <br/>
-                                    {rating.yearReleased} 
-                                    <hr/>
-                                </div>
-                            )
-                        })
-                    }
+                    <h1>Your Movie Ratings</h1>
+                    <div className="row row-cols-1 row-cols-md-4">
+                        {
+                            this.state.ratingArray.map((rating) => {
+                                return (
+                                    <div className="col mb-4" key={rating._id} >
+                                        <div className="card" style={{ width: "18rem", margin: "1%" }}>
+                                            <div className="card-header">
+                                                {rating.title}
+                                            </div>
+                                            <ul className="list-group list-group-flush">
+                                                <li className="list-group-item">{rating.yearReleased}</li>
+                                                <li className="list-group-item">{rating.rating}</li>
+                                                <li className="list-group-item">{rating.review}</li>
+                                                <li className="list-group-item">{rating.author}</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                )
+                            })
+                        }
+                    </div>
                 </div>
-            </div>
-        )
+            )}
+            return(
+                <h1>Please Login To Access Your Ratings</h1>
+            )
     }
 }
 

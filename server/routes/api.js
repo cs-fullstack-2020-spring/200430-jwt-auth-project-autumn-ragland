@@ -176,7 +176,7 @@ router.post('/token', (req, res) => {
         // decrypt and verify token is valid
         jwt.verify(token, secretKey, (errors, results) => {
             // if errors send error, otherwise send decrypted token
-            errors ? res.status(500).json({error : errors }) : res.json({message : results});
+            errors ? res.status(500).json({error : errors }) : res.json({user : results});
         });
     } 
     // if token not passed into header
