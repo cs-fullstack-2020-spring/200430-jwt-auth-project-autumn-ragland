@@ -1,6 +1,6 @@
 // import express
 let express = require('express');
-// create router
+// define router
 let router = express.Router();
 // json middleware
 router.use(express.json());
@@ -9,27 +9,28 @@ router.use(express.json());
 let jwt = require('jsonwebtoken');
 // encryption module
 let bcrypt = require('bcryptjs');
-// secret from keys file
-let secretKey = require('../config/keys').secretKey
+// encryption key from keys file
+let secretKey = require('../config/keys').secretKey;
 
 // mongo collections
 let UserCollection = require('../models/UserSchema');
 let RatingCollection = require('../models/RatingSchema');
 
-// test route
-router.get('/', (req,res) => {
-    res.send(`Success`);
-});
+// // test route
+// router.get('/', (req,res) => {
+//     res.send(`Success`);
+// });
 
+// create new user in collection
 router.post('/register', (req, res) => {
-    // res.send("Register");
+    // res.send("Register"); // check endpoint
     // check that email does not already exist in database
     UserCollection.findOne({ email: req.body.email })
         .then((user) => {
             // if email already exists in database
             if (user) {
                 // send `already exists` message
-                res.json({error : `User with ${req.body.email} already exists`});
+                res.json({error : `User with email ${req.body.email} already exists`});
             }
             // if user does not already exist in database
             else {
@@ -44,17 +45,16 @@ router.post('/register', (req, res) => {
                     bcrypt.hash(newUser.password, salt, (error, hash) => {
                         // If hash has errors send error message
                         if (error) {
-                            console.log("Password has not been hashed")
                             res.status(500).json({error : error});
                         }
                         // if hash does not have errors
                         else {
                             // set password of new user to hashed password
-                            newUser.password = hash
+                            newUser.password = hash;
                             // save new user
                             newUser.save()
-                                // and send new user
-                                .then(user => res.json(user));
+                                // and send new user as response
+                                .then(user => res.json({user : user}));
                         }
                     });
                 })
@@ -62,14 +62,15 @@ router.post('/register', (req, res) => {
         });
 });
 
+// create jwt for user from collection
 router.post('/login', (req, res) => {
-    // res.send("Login");
+    // res.send("Login"); // check endpoint
     // check that email exists in the database
     UserCollection.findOne({ email: req.body.email })
         .then(user => {
-            // if email does not exist send 403 message
+            // if email does not exist send error message
             if (!user) {
-                res.status(403).json({error : `User with email ${req.body.email} not found`})
+                res.status(404).json({error : `User with email ${req.body.email} not found`});
             }
             // if user does exist
             else {
@@ -78,21 +79,21 @@ router.post('/login', (req, res) => {
                     .then(isMatch => {
                         // if passwords match
                         if (isMatch) {
-                            // define payload with id and name properties from database
+                            // define payload with id name and email properties from database
                             let payload = {
                                 id: user._id,
                                 name: user.name,
                                 email : user.email
                             }
                             // create JWT using `sign()` method passing in payload
-                            jwt.sign(payload, secretKey, { expiresIn: 120 }, (error, token) => {
+                            jwt.sign(payload, secretKey, { expiresIn: 300 }, (error, token) => {
                                 // if errors send errors, otherwise send token as object
                                 error ? res.status(403).json({error : error}) : res.json({ token: `Bearer ${token}`});
                             });
                         }
-                        // if passwords don't match send 403 message
+                        // if passwords don't match send 404 message
                         else {
-                            res.status(403).json({error : `User with email ${req.body.email} has incorrect password`});
+                            res.status(404).json({error : `User with email ${req.body.email} has incorrect password`});
                         }
                     });
             }
@@ -100,68 +101,89 @@ router.post('/login', (req, res) => {
 });
 
 // get all ratings
-router.get('/ratings' ,(req,res) => {
+router.get('/ratings', (req,res) => {
+    // res.send("All Ratings") // check endpoint
+    // find all ratings from collection
     RatingCollection.find(
         {}, (error, result) => {
-            error ? res.send(error) : res.send(result)
+            // if error send error, otherwise send all ratings
+            error ? res.send(error) : res.send(result);
         }
     );
 });
 
-// get ratings by user email
+// protected route to get ratings by user email
 router.get('/user/ratings', authenticateToken ,(req,res) => {
+    // res.send("Ratings by User Email") // check endpoint
+    // filter ratings from email returned in middleware
     RatingCollection.find(
         {author : req.user.email}, (error, result) => {
-            error ? res.send(error) : res.json({result : result, user : req.user})
+            // if errors send errors, otherwise send filtered ratings
+            error ? res.send(error) : res.json({result : result});
         }
     );
 });
 
-// create a rating
+// protected route to create a rating
 router.post('/rating', authenticateToken ,(req,res) => {
+    // res.send("Create a rating") // check endpoint
+    // add a rating to the database from the request body
     RatingCollection.create(req.body, (error, results) => {
-        error ? res.send(error) : res.json({result : results, user : req.user})
+        // if errors send errors, otherwise send created rating
+        error ? res.send(error) : res.json({result : results});
     });
 });
 
 // authorize route middle ware
 function authenticateToken(req, res, next) {
-    let bearerHeader = req.headers["authorization"];
-    if(bearerHeader){
-        let bearer = bearerHeader.split(' ');
-        let bearerToken = bearer[1];
-        req.token = bearerToken;
-        // console.log(req.token);
-        jwt.verify(req.token, secretKey, (errors, results) => {
+    // pull encrypted token from header
+    let header = req.headers["authorization"];
+    // if token passed in to header
+    if(header){
+        // pull encrypted token from bearer token
+        token = header.split(' ')[1];
+        // decrypt and verify token is valid
+        jwt.verify(token, secretKey, (errors, results) => {
+            // if errors
             if(errors) {
-                res.status(403).json({error : errors});
-            } else {
+                // send errors
+                res.status(500).json({error : errors});
+            } 
+            // if no errors
+            else {
+                // set property of request to decrypted token
                 req.user = results;
+                // continue with functionality of route calling middle ware
                 next();
             }
         });
-    } else {
-        res.status(403).json({error : "Forbidden"});
+    } 
+    // if token not passed in to header
+    else {
+        // send Forbidden message
+        res.status(403).json({error : "Please sign in to access this page"});
     }
 }
 
 // verify and decrypt token
-router.post('/token', verifyToken, (req, res) => {
-    jwt.verify(req.token, secretKey, (errors, results) => {
-        errors ? res.status(500).json({error : errors }) : res.json({message : results});
-    });
-});
-// pull out token middleware
-function verifyToken(req,res,next){
-    let bearerHeader = req.headers["authorization"];
-    if(bearerHeader){
-        let bearer = bearerHeader.split(' ');
-        let bearerToken = bearer[1];
-        req.token = bearerToken;
-        next();
-    } else {
-        res.status(403).json({error : "Forbidden"});
+router.post('/token', (req, res) => {
+    // pull encrypted token from headers
+    let header = req.headers["authorization"];
+    // if token passed in to header
+    if(header){
+        // pull encrypted token from bearer token
+        token = header.split(' ')[1]
+        // decrypt and verify token is valid
+        jwt.verify(token, secretKey, (errors, results) => {
+            // if errors send error, otherwise send decrypted token
+            errors ? res.status(500).json({error : errors }) : res.json({message : results});
+        });
+    } 
+    // if token not passed into header
+    else {
+        // send Forbidden message
+        res.status(403).json({error : "Please sign in to access this page"});
     }
-}
+});
 
 module.exports = router;

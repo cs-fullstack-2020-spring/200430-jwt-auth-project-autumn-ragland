@@ -9,7 +9,7 @@ class CreateRating extends Component {
             yearReleased: 0,
             rating: 0,
             review: "",
-            author: this.props.user.name
+            author: this.props.user.email
         }
     }
 
