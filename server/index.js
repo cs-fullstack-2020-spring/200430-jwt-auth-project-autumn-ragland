@@ -3,6 +3,12 @@ let express = require("express");
 // define server
 let app = express();
 
+// render react when backend runs
+app.use(express.static('../client/build'));
+// if (process.env.NODE_ENV === 'production') {
+//     app.use(express.static('../client/build'));
+// }
+
 // CONNECTING TO A MONGO DB DATABASE
 // reference the mongoose module 
 let mongoose = require('mongoose');
@@ -12,14 +18,13 @@ mongoose.connect(process.env.MONGODB_URI || mongoDB, {useNewUrlParser: true, use
 // connection error message
 let db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+db.on('connected', () => { 
+    console.log('DB Connected')
+});
 
 // mount routes
 let api = require("./routes/api");
 app.use('/api', api);
-
-if(process.env.NODE_ENV === "production"){
-    app.use(express.static('../client/build'))
-}
 
 // server listening on port
 let port = require('./config/keys').listenPort;
