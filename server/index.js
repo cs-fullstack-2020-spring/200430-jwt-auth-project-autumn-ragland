@@ -27,7 +27,8 @@ let api = require("./routes/api");
 app.use('/api', api);
 
 // server listening on port
-let port = require('./config/keys').listenPort;
+// let port = require('./config/keys').listenPort;
+let port = process.env.listenPort || 8000
 app.listen(port, () => {
     console.log(`Listening on ${port}`);
 });
