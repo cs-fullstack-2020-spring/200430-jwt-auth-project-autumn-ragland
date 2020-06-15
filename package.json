@@ -1,5 +1,5 @@
 {
-    "main": "server/index.js",
+  "main": "server/index.js",
   "scripts": {
     "build": "cd client && npm run build",
     "install-client": "cd client && npm install",
