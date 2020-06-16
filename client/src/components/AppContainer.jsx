@@ -101,6 +101,9 @@ class AppContainer extends Component {
                         <li className="nav-item">
                             <Link className="nav-link" to="/register" >Register</Link>
                         </li>
+                        <li className="nav-item">
+                            <a className="nav-link" href="https://merndeployauthtest.herokuapp.com/">Check Out My Other Apps</a>
+                        </li>
                     </ul>
                     <Route path="/login" component={() => <Login logInUser={this.logInUser} />} />
                     <Route path="/register" component={() => <Register />} />
