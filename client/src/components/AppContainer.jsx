@@ -74,6 +74,9 @@ class AppContainer extends Component {
                             <li className="nav-item">
                                 <Link className="nav-link" onClick={this.logoutUser} to="/allRatings">Logout</Link>
                             </li>
+                            <li className="nav-item">
+                                <a className="nav-link" href="https://merndeployauthtest.herokuapp.com/">Check Out My Other Apps</a>
+                            </li>
                         </ul>
                         <Route path="/login" component={() => <Login logInUser={this.logInUser} />} />
                         <Route path="/register" component={() => <Register />} />
@@ -96,7 +99,7 @@ class AppContainer extends Component {
                             <Link className="nav-link" to="/allRatings" >All Ratings</Link>
                         </li>
                         <li className="nav-item">
-                            <Link className="nav-link" to="/login" >Login</Link>
+                            <Link className="nav-link" to="/login" >TEST</Link>
                         </li>
                         <li className="nav-item">
                             <Link className="nav-link" to="/register" >Register</Link>
